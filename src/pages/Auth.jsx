@@ -48,11 +48,22 @@ export function Signup() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [facilities, setFacilities] = useState([]);
-  const [form, setForm] = useState({ email: '', password: '', full_name: '', role: 'referrer', facility_id: '' });
+  const [form, setForm] = useState({ email: '', password: '', full_name: '', facility_id: '' });
+  const [loadingFacilities, setLoadingFacilities] = useState(true);
+  const [facilityError, setFacilityError] = useState('');
+  const [retry, setRetry] = useState(0);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { api('/facilities').then(setFacilities).catch(() => {}); }, []);
+  useEffect(() => {
+    let active = true;
+    setLoadingFacilities(true);
+    setFacilityError('');
+    api('/facilities')
+      .then((data) => { if (active) { setFacilities(data); setLoadingFacilities(false); } })
+      .catch((e) => { if (active) { setFacilityError(e.message || 'Facilities could not be loaded'); setLoadingFacilities(false); } });
+    return () => { active = false; };
+  }, [retry]);
 
   function set(key, value) { setForm((f) => ({ ...f, [key]: value })); }
 
@@ -75,10 +86,17 @@ export function Signup() {
           <label>Full name<input required value={form.full_name} onChange={(e) => set('full_name', e.target.value)} /></label>
           <label>Email address<input type="email" required value={form.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" /></label>
           <label>Password<input type="password" required minLength="8" value={form.password} onChange={(e) => set('password', e.target.value)} autoComplete="new-password" /></label>
-          <label>Role<select value={form.role} onChange={(e) => set('role', e.target.value)}><option value="referrer">Referring clinician</option><option value="receiving">Receiving clinician</option><option value="admin">Administrator</option></select></label>
-          <label>Facility<select required value={form.facility_id} onChange={(e) => set('facility_id', e.target.value)}><option value="">Select a facility</option>{facilities.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label>
+          <label>Facility
+            <select required value={form.facility_id} disabled={loadingFacilities || !!facilityError} onChange={(e) => set('facility_id', e.target.value)}>
+              <option value="">{loadingFacilities ? 'Loading facilities…' : 'Select a facility'}</option>
+              {facilities.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+            </select>
+          </label>
+          {facilityError && <div className="facility-error"><p className="form-error" role="alert">Could not load facilities: {facilityError}</p><button type="button" className="button-quiet" onClick={() => setRetry((n) => n + 1)}>Retry</button></div>}
+          {!loadingFacilities && !facilityError && facilities.length === 0 && <p className="field-note">No facilities are registered yet. Contact admin@mederng.com.</p>}
+          <p className="field-note">Accounts are created as referring clinicians. Receiving and administrator access is provisioned by MedERNg.</p>
           {error && <p className="form-error" role="alert">{error}</p>}
-          <button className="button-accent button-wide" type="submit" disabled={busy}>{busy ? 'Creating account…' : 'Create account'}</button>
+          <button className="button-accent button-wide" type="submit" disabled={busy || loadingFacilities || !!facilityError}>{busy ? 'Creating account…' : 'Create account'}</button>
         </form>
         <p className="auth-foot">Already registered? <Link to="/login">Sign in</Link></p>
       </div>

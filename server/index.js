@@ -243,4 +243,8 @@ app.use(express.static(dist));
 app.get('*', (_req, res) => res.sendFile(path.join(dist, 'index.html')));
 app.use((err, _req, res, _next) => { console.error(err); res.status(500).json({ error: 'Something went wrong' }); });
 
-app.listen(PORT, () => console.log(`MedERNg API listening on http://localhost:${PORT}`));
+if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'serverless') {
+  app.listen(PORT, () => console.log(`MedERNg API listening on http://localhost:${PORT}`));
+}
+
+export default app;
