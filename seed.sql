@@ -50,3 +50,39 @@ FROM referrals WHERE ref_number IN ('REF-2026-929644','REF-2026-440218');
 INSERT INTO referral_events (referral_id, status, actor_id, note, created_at)
 SELECT id, 'TRANSFERRED', (SELECT id FROM users WHERE email='demo.receiver@mederng.com'), 'Patient admitted', created_at + interval '6 minutes'
 FROM referrals WHERE ref_number IN ('REF-2026-929644');
+
+INSERT INTO referrals (folder_id, ref_number, created_by, from_facility_id, to_facility_id,
+  patient_initials, patient_age, patient_sex, severity, status, clinical_summary, vitals, bed_assignment,
+  created_at, sent_at, accepted_at)
+SELECT v.folder_id, v.ref, (SELECT id FROM users WHERE email='adesinaisaiah100@gmail.com'),
+ (SELECT facility_id FROM users WHERE email='adesinaisaiah100@gmail.com'),
+ (SELECT id FROM facilities WHERE name='Primary Health Centre, Ibadan South East'),
+ v.folder_id, v.age, v.sex, v.sev, v.status, v.summary, v.vitals::jsonb, v.bed,
+ now() - (v.mins || ' minutes')::interval, now() - (v.mins || ' minutes')::interval,
+ CASE WHEN v.status='ACCEPTED' THEN now() - ((v.mins-8) || ' minutes')::interval ELSE NULL END
+FROM (VALUES
+ ('PAT-M-1301','REF-2026-660311',34,'F','CRITICAL','SENT','34yo G2P1 at 38 weeks gestation with severe pre-eclampsia BP 175/110 mmHg, requiring urgent ICU bed','{"bp":"175/110 mmHg","hr":"112 bpm","spo2":"96%"}',NULL,12),
+ ('PAT-M-1302','REF-2026-551882',25,'M','URGENT','ACCEPTED','Severe malaria with vomiting, unable to tolerate oral medication','{"bp":"112/70 mmHg","hr":"104 bpm","temp":"39.2 °C"}','Ward 06',68),
+ ('PAT-M-1303','REF-2026-774120',42,'F','ROUTINE','TRANSFERRED','Follow-up review for controlled hypertension and medication reconciliation','{"bp":"132/84 mmHg","hr":"78 bpm"}','Clinic 02',280)
+) AS v(folder_id,ref,age,sex,sev,status,summary,vitals,bed,mins)
+WHERE NOT EXISTS (SELECT 1 FROM referrals r WHERE r.ref_number=v.ref);
+
+INSERT INTO referral_events (referral_id, status, actor_id, note, created_at)
+SELECT id, 'SENT', (SELECT id FROM users WHERE email='adesinaisaiah100@gmail.com'), 'Referral sent to receiving facility', created_at
+FROM referrals WHERE ref_number IN ('REF-2026-660311','REF-2026-551882','REF-2026-774120');
+
+INSERT INTO referral_events (referral_id, status, actor_id, note, created_at)
+SELECT id, 'DELIVERED', (SELECT id FROM users WHERE email='demo.receiver@mederng.com'), 'Casualty push alert delivered', created_at + interval '1 minute'
+FROM referrals WHERE ref_number IN ('REF-2026-551882','REF-2026-774120');
+
+INSERT INTO referral_events (referral_id, status, actor_id, note, created_at)
+SELECT id, 'SEEN', (SELECT id FROM users WHERE email='demo.receiver@mederng.com'), 'Detail sheet opened by receiving clinician', created_at + interval '2 minutes'
+FROM referrals WHERE ref_number IN ('REF-2026-551882','REF-2026-774120');
+
+INSERT INTO referral_events (referral_id, status, actor_id, note, created_at)
+SELECT id, 'ACCEPTED', (SELECT id FROM users WHERE email='demo.receiver@mederng.com'), COALESCE('Bed reserved: ' || bed_assignment, 'Bed reserved'), created_at + interval '4 minutes'
+FROM referrals WHERE ref_number IN ('REF-2026-551882','REF-2026-774120');
+
+INSERT INTO referral_events (referral_id, status, actor_id, note, created_at)
+SELECT id, 'TRANSFERRED', (SELECT id FROM users WHERE email='demo.receiver@mederng.com'), 'Patient admitted', created_at + interval '6 minutes'
+FROM referrals WHERE ref_number IN ('REF-2026-774120');
