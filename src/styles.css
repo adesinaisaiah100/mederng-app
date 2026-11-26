@@ -873,6 +873,50 @@ ol, ul { padding: 0; list-style: none; }
   .status-track { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 20px; }
 }
 
+/* Simulator — rebuilt */
+
+.simulator-page { max-width: 1240px; }
+.sim-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr); gap: 24px; margin-top: 28px; align-items: start; }
+.sim-layout .panel { margin-top: 0; }
+.sim-progress { height: 2px; margin-top: 18px; background: var(--rule); }
+.sim-progress span { display: block; height: 100%; background: var(--brand); transition: width 320ms linear; }
+.sim-case { margin-top: 24px; border: 1px solid var(--rule); border-radius: 6px; padding: 20px; }
+.sim-case-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.sim-case-head h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 400; letter-spacing: -0.02em; }
+.sim-case-meta { margin-top: 6px; font-size: 0.8125rem; color: var(--ink-soft); }
+.sim-route { margin-top: 14px; font-size: 0.875rem; }
+.sim-route span { display: inline-block; width: 52px; font-size: 0.625rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+.sim-detail { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--rule-soft); font-size: 0.9375rem; line-height: 1.6; }
+.sim-observations { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.sim-observations div { border-top: 1px solid var(--rule); padding-top: 10px; }
+.sim-observations dt { font-size: 0.625rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+.sim-observations dd { margin-top: 6px; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+.sim-section-label { margin: 28px 0 14px; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+.sim-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.sim-steps li { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.sim-steps li.is-done { border-top-color: var(--brand); }
+.sim-step-marker { position: absolute; top: -5px; left: 0; width: 9px; height: 9px; background: var(--rule); }
+.sim-steps li.is-done .sim-step-marker { background: var(--brand); }
+.sim-step-time { font-size: 0.75rem; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+.sim-steps .status-mark { white-space: nowrap; }
+.sim-step-note { font-size: 0.8125rem; line-height: 1.45; }
+.sim-step-audit { font-size: 0.6875rem; color: var(--brand-deep); }
+.sim-confirmed { margin-top: 24px; padding: 18px 20px; border-left: 3px solid var(--brand); background: var(--paper-tint); }
+.sim-confirmed strong { font-size: 1rem; }
+.sim-confirmed p { margin-top: 8px; font-size: 0.875rem; color: var(--ink-soft); }
+.sim-side .panel + .panel { margin-top: 20px; }
+.sim-stat { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-block: 14px; border-bottom: 1px solid var(--rule-soft); }
+.sim-stat strong { font-family: var(--font-display); font-size: 1.75rem; font-weight: 400; letter-spacing: -0.02em; white-space: nowrap; }
+.sim-stat span { text-align: right; font-size: 0.75rem; color: var(--ink-soft); }
+.sim-foot { margin-top: 16px; font-size: 0.75rem; line-height: 1.6; color: var(--ink-soft); }
+.sim-help { font-size: 0.875rem; color: var(--ink-soft); }
+.sim-actions { justify-content: flex-start; }
+
+@media (max-width: 960px) {
+  .sim-layout { grid-template-columns: 1fr; }
+  .sim-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 24px; }
+}
+
 @media (max-width: 720px) {
   .page-head { flex-direction: column; align-items: flex-start; }
   .filter-bar { align-items: stretch; }
@@ -886,6 +930,10 @@ ol, ul { padding: 0; list-style: none; }
   .workspace-subnav a { white-space: nowrap; }
   .detail-list { grid-template-columns: 1fr; gap: 4px; }
   .detail-list dd { margin-bottom: 8px; }
+  .sim-observations { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sim-steps { grid-template-columns: 1fr; }
+  .sim-stat { flex-direction: column; gap: 4px; }
+  .sim-stat span { text-align: left; }
 }
 
 /* Mobile app behaviour — tab bar and bottom sheets */
